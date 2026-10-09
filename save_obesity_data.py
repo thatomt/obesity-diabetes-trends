@@ -1,7 +1,6 @@
 import pandas as pd
 import sqlite3
 
-
 table = pd.read_csv("obesity_clean.csv")
 
 # Connect to a database file
