@@ -1,4 +1,4 @@
-# 🥗 Obesity & Diabetes Trends
+# Obesity & Diabetes Trends
 
 > **An end-to-end ETL pipeline analysing obesity prevalence trends across South Africa, the USA, the UK, and Nigeria from 1980–2024.**
 
@@ -8,7 +8,7 @@ The project combines **data engineering, data analysis, and public health contex
 
 ---
 
-## 📊 Project Overview
+## Project Overview
 
 The pipeline extracts obesity prevalence data from the WHO Global Health Observatory API, transforms it into an analysis-ready dataset, stores it in a local SQLite database, and produces a visualization comparing trends across four countries.
 
@@ -29,7 +29,7 @@ The pipeline extracts obesity prevalence data from the WHO Global Health Observa
 
 ---
 
-## 🔄 ETL Pipeline
+## ETL Pipeline
 
 ```text
              WHO Global Health Observatory API
@@ -64,7 +64,7 @@ The project follows a simple **Extract → Transform → Load → Visualize** wo
 
 ---
 
-## 🛠️ Pipeline Steps
+## Pipeline Steps
 
 ### 1. Extract
 
@@ -150,7 +150,7 @@ The visualization makes it easier to identify long-term changes, differences bet
 
 ---
 
-## 📈 Key Findings
+## Key Findings
 
 The data shows a substantial long-term increase in adult obesity prevalence across the countries analysed since 1980.
 
@@ -162,7 +162,7 @@ The trends provide a useful comparison between countries at different stages of 
 
 ---
 
-## 🚀 How to Run
+## How to Run
 
 ### 1. Clone the repository
 
@@ -198,11 +198,11 @@ obesity_trends_chart.png
 
 ---
 
-## 🧰 Tech Stack
+## Tech Stack
 
 | Technology      | Purpose                          |
 | --------------- | -------------------------------- |
-| 🐍 **Python**   | Main programming language        |
+| **Python**   | Main programming language        |
 | `requests`      | API requests                     |
 | `pandas`        | Data cleaning and transformation |
 | `sqlite3`       | Local relational database        |
@@ -211,7 +211,7 @@ obesity_trends_chart.png
 
 ---
 
-## 🗂️ Project Structure
+## Project Structure
 
 ```text
 .
@@ -231,7 +231,7 @@ obesity_trends_chart.png
 
 ---
 
-## 🌍 Data Source
+## Data Source
 
 **World Health Organization — Global Health Observatory (GHO)**
 
@@ -243,9 +243,6 @@ The data is retrieved through the WHO Global Health Observatory OData API.
 
 ---
 
-## 💡 Why I Built This
-
-As someone with a background in **dietetics** who is developing further skills in **data engineering**, I wanted to build a project at the intersection of **health and technology**.
 
 Rather than using an artificial dataset, this project works with real-world public health data and demonstrates a complete data workflow:
 
@@ -263,29 +260,3 @@ SQL Querying
 Data Visualization
 ```
 
-The goal is to demonstrate not only the ability to work with Python, but also an understanding of how data moves through a practical **ETL pipeline**.
-
----
-
-## 🔮 Future Improvements
-
-Potential extensions to the project include:
-
-* [ ] Add **diabetes prevalence** data
-* [ ] Compare obesity and diabetes trends
-* [ ] Add more countries
-* [ ] Add automated data validation
-* [ ] Add unit tests
-* [ ] Containerize the pipeline with Docker
-* [ ] Add a scheduled data refresh
-* [ ] Build an interactive dashboard using Power BI
-* [ ] Move the pipeline to a cloud data platform
-* [ ] Add CI/CD using GitHub Actions
-
----
-
-## 👤 About the Project
-
-Built as a portfolio project to demonstrate practical skills in:
-
-**Data Engineering · ETL · Python · SQL · Data Cleaning · API Integration · Data Visualization · Public Health Analytics**
