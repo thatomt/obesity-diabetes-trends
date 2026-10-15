@@ -259,4 +259,6 @@ SQL Querying
  ↓
 Data Visualization
 ```
+## Verification Code
 
+WTC-J6DAZPTC
