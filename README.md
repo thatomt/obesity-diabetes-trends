@@ -1,6 +1,6 @@
 # Obesity & Diabetes Trends
 
-> **An end-to-end ETL pipeline analysing obesity prevalence trends across South Africa, the USA, the UK, and Nigeria from 1980–2024.**
+> **The pipeline extracts obesity and diabetes prevalence data from the WHO Global Health Observatory API, transforms it into analysis-ready datasets, stores them in a local SQLite database, and produces visualizations comparing trends across four countries.**
 
 This project uses data from the **World Health Organization (WHO) Global Health Observatory** to explore how adult obesity prevalence has changed over more than four decades.
 
@@ -21,11 +21,13 @@ The pipeline extracts obesity prevalence data from the WHO Global Health Observa
 
 ### Time period
 
-**1980–2024**
+* **Obesity:** 1980–2024
+* **Diabetes:** 1990–2022
 
 ### Health indicator
 
-**NCD_BMI_30A** — Age-standardized prevalence of obesity among adults (BMI ≥ 30).
+* **Obesity:** `NCD_BMI_30A`, age-standardized prevalence of obesity among adults (BMI ≥ 30)
+* **Diabetes:** `NCD_DIABETES_PREVALENCE_AGESTD`, age-standardized prevalence of diabetes among adults
 
 ---
 
@@ -150,6 +152,17 @@ The visualization makes it easier to identify long-term changes, differences bet
 
 ---
 
+### Diabetes pipeline
+
+The same four steps run for diabetes:
+
+* `get_diabetes_data.py` saves `diabetes_raw.json`
+* `clean_diabetes_data.py` keeps both sexes and adults 18+, and saves `diabetes_clean.csv`
+* `save_diabetes_data.py` writes a `diabetes` table into `obesity.db`
+* `show_diabetes_trends.py` saves `diabetes_trends_chart.png`
+
+---
+
 ## Key Findings
 
 The data shows a substantial long-term increase in adult obesity prevalence across the countries analysed since 1980.
@@ -159,6 +172,23 @@ The trends provide a useful comparison between countries at different stages of 
 **South Africa is particularly important in this analysis**, given the country's changing nutrition landscape and the coexistence of undernutrition and rising overweight and obesity.
 
 > *The project focuses on describing trends in the available data rather than attempting to establish causal relationships.*
+
+### Diabetes (1990–2022)
+
+Age-standardized diabetes prevalence among adults aged 18+:
+
+| Country        | 1990  | 2022  |
+| -------------- | ----- | ----- |
+| United States  | 7.0%  | 12.5% |
+| South Africa   | 10.8% | 13.9% |
+| United Kingdom | 4.4%  | 8.8%  |
+| Nigeria        | 6.2%  | 10.9% |
+
+* **South Africa** had the highest prevalence in both 1990 and 2022, but the smallest increase of the four countries (about 3 percentage points).
+* The **United States** had the largest increase (about 5.5 percentage points).
+* The **United Kingdom** roughly doubled, from 4.4% to 8.8%.
+
+> *The diabetes data covers 1990–2022, so it can't be compared directly with the 1980–2024 obesity figures.*
 
 ---
 
@@ -234,6 +264,8 @@ obesity_trends_chart.png
 ## Data Source
 
 **World Health Organization — Global Health Observatory (GHO)**
+
+**Indicator (diabetes):** `NCD_DIABETES_PREVALENCE_AGESTD`
 
 **Indicator:** `NCD_BMI_30A`
 
