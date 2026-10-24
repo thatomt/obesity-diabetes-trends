@@ -1,16 +1,16 @@
 # Obesity & Diabetes Trends
 
-> **The pipeline extracts obesity and diabetes prevalence data from the WHO Global Health Observatory API, transforms it into analysis-ready datasets, stores them in a local SQLite database, and produces visualizations comparing trends across four countries.**
+> **An end-to-end ETL pipeline analysing adult obesity and diabetes prevalence across South Africa, the USA, the UK, and Nigeria.**
 
-This project uses data from the **World Health Organization (WHO) Global Health Observatory** to explore how adult obesity prevalence has changed over more than four decades.
+This project uses data from the **World Health Organization (WHO) Global Health Observatory** to explore how adult obesity and diabetes prevalence have changed over several decades.
 
-The project combines **data engineering, data analysis, and public health context**, drawing on my background as a **dietitian** to investigate a significant global health trend through a data-driven approach.
+The project combines **data engineering, data analysis, and public health context**, drawing on my background as a **dietitian** to investigate significant global health trends through a data-driven approach.
 
 ---
 
 ## Project Overview
 
-The pipeline extracts obesity prevalence data from the WHO Global Health Observatory API, transforms it into an analysis-ready dataset, stores it in a local SQLite database, and produces a visualization comparing trends across four countries.
+The pipeline extracts obesity and diabetes prevalence data from the WHO Global Health Observatory API, transforms it into analysis-ready datasets, stores them in a local SQLite database, and produces charts comparing trends across four countries.
 
 ### Countries analysed
 
@@ -24,10 +24,10 @@ The pipeline extracts obesity prevalence data from the WHO Global Health Observa
 * **Obesity:** 1980–2024
 * **Diabetes:** 1990–2022
 
-### Health indicator
+### Health indicators
 
 * **Obesity:** `NCD_BMI_30A`, age-standardized prevalence of obesity among adults (BMI ≥ 30)
-* **Diabetes:** `NCD_DIABETES_PREVALENCE_AGESTD`, age-standardized prevalence of diabetes among adults
+* **Diabetes:** `NCD_DIABETES_PREVALENCE_AGESTD`, age-standardized prevalence of diabetes among adults (18+)
 
 ---
 
@@ -36,146 +36,92 @@ The pipeline extracts obesity prevalence data from the WHO Global Health Observa
 ```text
              WHO Global Health Observatory API
                           │
-                          ▼
-                 get_obesity_data.py
-                          │
-                          ▼
-                   obesity_raw.json
-                          │
-                          ▼
-                clean_obesity_data.py
-                          │
-                          ▼
-                   obesity_clean.csv
-                          │
-                          ▼
-                 save_obesity_data.py
-                          │
+          ┌───────────────┴───────────────┐
+          ▼                               ▼
+ get_obesity_data.py             get_diabetes_data.py
+          │                               │
+          ▼                               ▼
+   obesity_raw.json                diabetes_raw.json
+          │                               │
+          ▼                               ▼
+ clean_obesity_data.py           clean_diabetes_data.py
+          │                               │
+          ▼                               ▼
+   obesity_clean.csv               diabetes_clean.csv
+          │                               │
+          ▼                               ▼
+ save_obesity_data.py            save_diabetes_data.py
+          │                               │
+          └───────────────┬───────────────┘
                           ▼
                      obesity.db
                     (SQLite)
                           │
-                          ▼
-               show_obesity_trends.py
-                          │
-                          ▼
-              obesity_trends_chart.png
+          ┌───────────────┴───────────────┐
+          ▼                               ▼
+ show_obesity_trends.py          show_diabetes_trends.py
+          │                               │
+          ▼                               ▼
+ obesity_trends_chart.png        diabetes_trends_chart.png
 ```
 
-The project follows a simple **Extract → Transform → Load → Visualize** workflow.
+The project follows an **Extract → Transform → Load → Visualize** workflow for each topic. `run_pipeline.py` runs the steps for one topic, or both.
 
 ---
 
 ## Pipeline Steps
 
+Each topic has the same four steps.
+
 ### 1. Extract
 
-**`get_obesity_data.py`**
-
-Connects to the WHO Global Health Observatory OData API and retrieves adult obesity prevalence data.
-
-The extraction is filtered to:
-
-* South Africa
-* USA
-* UK
-* Nigeria
-* 1980–2024
-* Indicator `NCD_BMI_30A`
-
-The raw API response is saved as:
-
-```text
-obesity_raw.json
-```
-
----
+**`get_obesity_data.py`** and **`get_diabetes_data.py`** connect to the WHO Global Health Observatory OData API and save the records for the four countries as `obesity_raw.json` and `diabetes_raw.json`.
 
 ### 2. Transform
 
-**`clean_obesity_data.py`**
+**`clean_obesity_data.py`** keeps the both-sexes rows for adults and saves `obesity_clean.csv`.
 
-Cleans and prepares the raw WHO data for analysis.
+**`clean_diabetes_data.py`** keeps the both-sexes rows for adults aged 18+ and saves `diabetes_clean.csv`.
 
-The transformation process:
+Both cleaned files have one row per country per year, with these columns:
 
-* Filters the dataset to **both sexes combined**
-* Selects the relevant country and year information
-* Removes unnecessary fields
-* Reshapes the data into an analysis-friendly structure
-
-The resulting dataset contains:
-
-| Column               | Description                  |
-| -------------------- | ---------------------------- |
-| `country`            | Country name                 |
-| `year`               | Year of observation          |
-| `obesity_percentage` | Adult obesity prevalence (%) |
-
-Output:
-
-```text
-obesity_clean.csv
-```
-
----
+| Column             | Description                  |
+| ------------------ | ---------------------------- |
+| `country`          | WHO country code (ZAF, USA, GBR, NGA) |
+| `year`             | Year of observation          |
+| `obesity_percent` or `diabetes_percent` | Adult prevalence (%) |
 
 ### 3. Load
 
-**`save_obesity_data.py`**
+**`save_obesity_data.py`** and **`save_diabetes_data.py`** write each cleaned file into the SQLite database `obesity.db`, as the tables `obesity` and `diabetes`.
 
-Loads the cleaned dataset into a local **SQLite database**.
-
-Output:
-
-```text
-obesity.db
-```
-
-This demonstrates how cleaned data can move from a flat-file format into a structured relational database for querying and analysis.
-
----
+This shows how cleaned data can move from a flat-file format into a structured relational database for querying and analysis.
 
 ### 4. Visualize
 
-**`show_obesity_trends.py`**
+**`show_obesity_trends.py`** queries the `obesity` table with SQL, pivots it by country, and saves `obesity_trends_chart.png`.
 
-Queries the SQLite database using SQL and generates a line chart comparing obesity prevalence across all four countries.
-
-Output:
-
-```text
-obesity_trends_chart.png
-```
-
-The visualization makes it easier to identify long-term changes, differences between countries, and periods of increasing prevalence.
-
----
-
-### Diabetes pipeline
-
-The same four steps run for diabetes:
-
-* `get_diabetes_data.py` saves `diabetes_raw.json`
-* `clean_diabetes_data.py` keeps both sexes and adults 18+, and saves `diabetes_clean.csv`
-* `save_diabetes_data.py` writes a `diabetes` table into `obesity.db`
-* `show_diabetes_trends.py` saves `diabetes_trends_chart.png`
+**`show_diabetes_trends.py`** does the same for the `diabetes` table and saves `diabetes_trends_chart.png`.
 
 ---
 
 ## Key Findings
 
-The data shows a substantial long-term increase in adult obesity prevalence across the countries analysed since 1980.
+### Obesity (1980–2024)
 
-The trends provide a useful comparison between countries at different stages of the obesity epidemic, while also highlighting the scale and persistence of obesity as a global public health challenge.
+| Country        | 1980  | 2024  |
+| -------------- | ----- | ----- |
+| United States  | 12.1% | 41.0% |
+| South Africa   | 10.7% | 31.8% |
+| United Kingdom | 6.9%  | 27.4% |
+| Nigeria        | 1.3%  | 13.7% |
 
-**South Africa is particularly important in this analysis**, given the country's changing nutrition landscape and the coexistence of undernutrition and rising overweight and obesity.
-
-> *The project focuses on describing trends in the available data rather than attempting to establish causal relationships.*
+* Adult obesity prevalence rose in all four countries over the period.
+* The **USA** had the highest prevalence throughout and the largest absolute increase (about 29 percentage points).
+* **South Africa's** prevalence was above the UK's in every year from 1980 to 2024.
+* **Nigeria** started from the lowest base but had the fastest relative growth, rising about tenfold.
 
 ### Diabetes (1990–2022)
-
-Age-standardized diabetes prevalence among adults aged 18+:
 
 | Country        | 1990  | 2022  |
 | -------------- | ----- | ----- |
@@ -188,7 +134,7 @@ Age-standardized diabetes prevalence among adults aged 18+:
 * The **United States** had the largest increase (about 5.5 percentage points).
 * The **United Kingdom** roughly doubled, from 4.4% to 8.8%.
 
-> *The diabetes data covers 1990–2022, so it can't be compared directly with the 1980–2024 obesity figures.*
+> *The project describes trends in the available data and does not test causes. The obesity and diabetes series cover different periods, so they are not compared directly.*
 
 ---
 
@@ -204,27 +150,42 @@ cd obesity-diabetes-trends
 ### 2. Install dependencies
 
 ```bash
-pip install requests pandas matplotlib
+pip install -r requirements.txt
 ```
 
-### 3. Run the ETL pipeline
+### 3. Run the pipeline
 
-Run the scripts in order:
+Run both topics with one command:
 
 ```bash
-python get_obesity_data.py
-python clean_obesity_data.py
-python save_obesity_data.py
-python show_obesity_trends.py
+python run_pipeline.py all
 ```
+
+Or run one topic:
+
+```bash
+python run_pipeline.py obesity
+python run_pipeline.py diabetes
+```
+
+The runner stops and reports the step that failed, if any.
 
 ### 4. View the output
 
-The final visualization will be generated as:
+The charts are saved as:
 
 ```text
 obesity_trends_chart.png
+diabetes_trends_chart.png
 ```
+
+### 5. Run the tests
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+The tests use small fake datasets, so they don't need an internet connection.
 
 ---
 
@@ -232,11 +193,12 @@ obesity_trends_chart.png
 
 | Technology      | Purpose                          |
 | --------------- | -------------------------------- |
-| **Python**   | Main programming language        |
+| **Python**      | Main programming language        |
 | `requests`      | API requests                     |
 | `pandas`        | Data cleaning and transformation |
 | `sqlite3`       | Local relational database        |
 | `matplotlib`    | Data visualization               |
+| `unittest`      | Automated tests                  |
 | **WHO GHO API** | Source of health data            |
 
 ---
@@ -245,16 +207,33 @@ obesity_trends_chart.png
 
 ```text
 .
+├── run_pipeline.py
+│
 ├── get_obesity_data.py
 ├── clean_obesity_data.py
 ├── save_obesity_data.py
 ├── show_obesity_trends.py
 │
+├── get_diabetes_data.py
+├── clean_diabetes_data.py
+├── save_diabetes_data.py
+├── show_diabetes_trends.py
+│
+├── tests/
+│   ├── helpers.py
+│   ├── test_obesity.py
+│   ├── test_diabetes.py
+│   └── test_run_pipeline.py
+│
+├── requirements.txt
 ├── obesity_raw.json
 ├── obesity_clean.csv
-├── obesity.db
+├── diabetes_raw.json
+├── diabetes_clean.csv
+├── obesity.db           
 │
 ├── obesity_trends_chart.png
+├── diabetes_trends_chart.png
 │
 └── README.md
 ```
@@ -265,16 +244,12 @@ obesity_trends_chart.png
 
 **World Health Organization — Global Health Observatory (GHO)**
 
+**Indicator (obesity):** `NCD_BMI_30A`
 **Indicator (diabetes):** `NCD_DIABETES_PREVALENCE_AGESTD`
-
-**Indicator:** `NCD_BMI_30A`
-
-**Description:** Age-standardized prevalence of obesity among adults (BMI ≥ 30).
 
 The data is retrieved through the WHO Global Health Observatory OData API.
 
 ---
-
 
 Rather than using an artificial dataset, this project works with real-world public health data and demonstrates a complete data workflow:
 
@@ -290,6 +265,8 @@ Relational Database
 SQL Querying
  ↓
 Data Visualization
+ ↓
+Automated Tests
 ```
 ## Verification Code
 
